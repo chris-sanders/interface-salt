@@ -2,6 +2,7 @@ from charms.reactive import RelationBase
 from charms.reactive import scopes
 from charms.reactive import hook
 from charms.reactive import when
+import socket
 #from charms.reactive import remove_state
 
 class SaltRequires(RelationBase):
@@ -11,8 +12,7 @@ class SaltRequires(RelationBase):
     def changed(self):
         conv = self.conversation()
         print("Requires relation joined/changed called")
-        if conv.get_remote('hostname'):
-            conv.set_state('{relation_name}.available')
+        if conv.get_remote('address'):
             conv.set_state('{relation_name}.changed')
 
     @hook('{requires:salt}-relation-{departed}')
@@ -21,11 +21,13 @@ class SaltRequires(RelationBase):
         conv.remove_state('{relation_name}.available')
 
     @property
-    def hostname(self):
-        conv = self.conversation()
-        return conv.get_remote('hostname')
+    def address(self):
+        return self.get_remote('address')
+        #conv = self.conversation()
+        #return conv.get_remote('hostname')
 
-    def configure_me(self):
-        print("salt-minion is asking to be configured")
-        self.set_remote(key="unconfigured",value=True)
-        self.set_state('salt.minion.configure')
+    def minion_ready(self):
+        #conv = self.conversation()
+        print("salt-minion is ready")
+        self.set_remote("minion",socket.gethostname())
+

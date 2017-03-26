@@ -3,7 +3,6 @@ from charms.reactive import scopes
 from charms.reactive import hook
 from charms.reactive import when
 from charmhelpers.core import hookenv
-import socket
 
 class SaltProvides(RelationBase):
     scope = scopes.UNIT
@@ -11,19 +10,27 @@ class SaltProvides(RelationBase):
     @hook('{provides:salt}-relation-{joined,changed}')
     def changed(self):
         print("Provides realation joined/changed called")
-        self.set_state('{relation_name}.available')
-        if self.get_local('hostname') is None:
+        localMinion = self.get_local('minion')
+        remoteMinion = self.get_remote('minion')
+        if self.get_local('address') is None:
             self.set_state('{relation_name}.unconfigured')
-        if self.get_remote('unconfigured'):
+        if localMinion is not remoteMinion:
+            self.set_local('minion',remoteMinion)
+            self.set_state('{relation_name}.newminion')
             print("Salt master needs to re-run configuration")
 
     @hook('{provides:salt}-relation-{departed}')
     def departed(self):
         self.remove_state('{relation_name}.available')
 
-    def configure(self):
+    @property
+    def minion(self):
+        return self.get_local('minion')
+
+    def configure(self,address,port):
         relation_info = {
-            'hostname': socket.gethostname(),
+            'address': address,
+            'port': port
              }
         print("SaltProvides configured")
         self.set_remote(**relation_info)
