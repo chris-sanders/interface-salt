@@ -29,5 +29,5 @@ class SaltRequires(RelationBase):
     def minion_ready(self):
         #conv = self.conversation()
         print("salt-minion is ready")
-        self.set_remote("minion",socket.gethostname())
+        self.set_remote("minion",socket.getfqdn())
 

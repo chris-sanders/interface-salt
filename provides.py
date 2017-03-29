@@ -14,10 +14,8 @@ class SaltProvides(RelationBase):
         remoteMinion = self.get_remote('minion')
         if self.get_local('address') is None:
             self.set_state('{relation_name}.unconfigured')
-        if localMinion is not remoteMinion:
-            self.set_local('minion',remoteMinion)
+        if self.get_remote('minion'):
             self.set_state('{relation_name}.newminion')
-            print("Salt master needs to re-run configuration")
 
     @hook('{provides:salt}-relation-{departed}')
     def departed(self):
@@ -25,7 +23,7 @@ class SaltProvides(RelationBase):
 
     @property
     def minion(self):
-        return self.get_local('minion')
+        return self.get_remote('minion')
 
     def configure(self,address,port):
         relation_info = {
