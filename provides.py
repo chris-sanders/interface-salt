@@ -2,7 +2,6 @@ from charms.reactive import RelationBase
 from charms.reactive import scopes
 from charms.reactive import hook
 from charms.reactive import when
-from charmhelpers.core import hookenv
 
 class SaltProvides(RelationBase):
     scope = scopes.UNIT
@@ -11,8 +10,11 @@ class SaltProvides(RelationBase):
     def changed(self):
         if self.get_local('address') is None:
             self.set_state('{relation_name}.unconfigured')
-        if self.get_remote('minion'):
+        rmtMinion = self.get_remote('minion')
+        lclMinion = self.get_local('minion')
+        if rmtMinion is not lclMinion:
             self.set_state('{relation_name}.newminion')
+            self.set_local('minion',rmtMinion)
 
     @hook('{provides:salt}-relation-{departed}')
     def departed(self):
@@ -21,6 +23,7 @@ class SaltProvides(RelationBase):
     @property
     def minion(self):
         return self.get_remote('minion')
+
     def configure(self,address,port):
         relation_info = {
             'address': address,

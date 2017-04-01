@@ -3,7 +3,6 @@ from charms.reactive import scopes
 from charms.reactive import hook
 from charms.reactive import when
 import socket
-#from charms.reactive import remove_state
 
 class SaltRequires(RelationBase):
     scope = scopes.UNIT
