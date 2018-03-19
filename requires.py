@@ -1,8 +1,7 @@
 from charms.reactive import RelationBase
 from charms.reactive import scopes
 from charms.reactive import hook
-from charms.reactive import when
-import socket
+
 
 class SaltRequires(RelationBase):
     scope = scopes.UNIT
@@ -20,6 +19,6 @@ class SaltRequires(RelationBase):
     def address(self):
         return self.get_remote('address')
 
-    def minion_ready(self):
-        self.set_remote("minion",socket.getfqdn())
+    def minion_ready(self, minionId):
+        self.set_remote("minion", minionId)
 
